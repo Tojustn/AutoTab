@@ -1,0 +1,7 @@
+Flask
+opencv-python
+numpy
+matplotlib
+flask-cors
+unittest
+ultralytics 
