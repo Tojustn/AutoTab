@@ -2,6 +2,5 @@ Flask
 opencv-python
 numpy
 matplotlib
-flask-cors
-unittest
+flask_cors
 ultralytics 
