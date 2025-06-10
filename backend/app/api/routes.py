@@ -12,11 +12,11 @@ def register_routes(app):
         allowed_file_formats = ['mp4']
         video = request.files['video']
 
-        bpm = request.form.get['bpm']
+        bpm = request.form.get('bpm')
         if not allowed_file(video.filename):
             return {"message":"File format not allowed", "status": 404}
         
-        filename = secure_filename(file.filename)
+        filename = secure_filename(video.filename)
         video.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         return {
     "message": "Upload successful",
