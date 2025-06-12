@@ -1,6 +1,7 @@
 from flask import Flask, flash, request, url_for, redirect
 from flask import current_app as app
 from werkzeug.utils import secure_filename
+from app.services.extract_frames import extract_frames
 import os
 def allowed_file(filename):
     return '.' in filename and \
@@ -18,6 +19,7 @@ def register_routes(app):
         
         filename = secure_filename(video.filename)
         video.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        extract_frames(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         return {
     "message": "Upload successful",
     "filename": filename
