@@ -1,1 +1,8 @@
-/venv
+venv/
+
+# Ignore frames directories
+static/frames/*
+data/processed_frames/*
+!static/frames/.gitkeep
+!data/processed_frames/.gitkeep
+*.jpg
