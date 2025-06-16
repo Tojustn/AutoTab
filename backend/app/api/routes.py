@@ -2,7 +2,7 @@ from flask import Flask, flash, request, url_for, redirect
 from flask import current_app as app
 from werkzeug.utils import secure_filename
 from app.services.extract_frames import extract_frames
-from app.services.process_frames import process_frames
+from app.services.process_frames import preprocess_frames, get_string_from_frames
 import os
 def allowed_file(filename):
     return '.' in filename and \
@@ -38,8 +38,11 @@ def register_routes(app):
         return [f"/static/frames/{frame}" for frame in frames]
     
     # Get the confirmed frames and send in as a list of numbers
-    @app.route("api/confirmed_frames", methods = ["POST"])
+    @app.route("/api/confirmed_frames", methods = ["POST"])
     def confirmed_frames():
-        frames = request.args.get("frames")
-        process_frames(frames)
+        frames = request.json.get("frames")
+        print(frames)
+        print(type(frames))
+        preprocess_frames(frames)
+        return {"success":True, "status": 200}
 

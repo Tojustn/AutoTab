@@ -6,7 +6,7 @@ upload_path = os.path.join(base_dir, 'data', 'raw_videos')
 
 frames_path = os.path.join(base_dir, 'static','frames')
 
-processed_frames_path = os.path.join(base_dir, 'static', 'processed_frames')
+processed_frames_path = os.path.join(base_dir, 'data', 'processed_frames')
 class Config:
     ALLOWED_EXTENSIONS = {"mp4"}
     UPLOAD_FOLDER = upload_path
