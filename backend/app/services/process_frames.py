@@ -3,18 +3,23 @@ import os
 from flask import current_app as app
 import matplotlib.pyplot as plt
 import numpy as np
+
 def get_last_number(frame: str) -> int:
     return int(frame.split('_')[-1].split('.')[0])
 
+
 def preprocess_frames(frames: list[int]):
     previous_frames = set()
+    # Ensure processed frames directory exists
+    os.makedirs(app.config['PROCESSED_FRAMES_FOLDER'], exist_ok=True)
+    
     for frame in frames:
-        if frame not in previous_frames and os.path.join(app.config['FRAMES_FOLDER'], f"frame_{frame}.jpg") in os.listdir(app.config['FRAMES_FOLDER']):
+        if frame not in previous_frames and f"frame_{frame}.jpg" in os.listdir(app.config['FRAMES_FOLDER']):
             image = cv.imread(os.path.join(app.config['FRAMES_FOLDER'], f"frame_{frame}.jpg"))
             resized_image = cv.resize(image, (640,640))
             grayscaled_image = cv.cvtColor(resized_image, cv.COLOR_BGR2GRAY)
             # No blur since image is already basic enough
-            os.imwrite(os.path.join(app.config['PROCESSED_FRAMES_FOLDER'], f"frame_{frame}.jpg"), grayscaled_image)
+            cv.imwrite(os.path.join(app.config['PROCESSED_FRAMES_FOLDER'], f"frame_{frame}.jpg"), grayscaled_image)
             previous_frames.add(frame)
         else:
             continue
