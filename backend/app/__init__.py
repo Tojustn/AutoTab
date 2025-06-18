@@ -13,5 +13,7 @@ def create_app():
     register_routes(app)
 
     tracker = GuitarTabs()
+    app.tracker = tracker
+
 
     return app

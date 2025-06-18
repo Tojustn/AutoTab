@@ -8,15 +8,19 @@ def get_last_number(frame: str) -> int:
     return int(frame.split('_')[-1].split('.')[0])
 
 
-def preprocess_frames(frames: list[int]):
+def preprocess_frames(frames: list[int], dimensions: dict):
+    # x left, y top, w width, h height
+    x,y,w,h = dimensions.values()
     previous_frames = set()
     # Ensure processed frames directory exists
     os.makedirs(app.config['PROCESSED_FRAMES_FOLDER'], exist_ok=True)
     
     for frame in frames:
         if frame not in previous_frames and f"frame_{frame}.jpg" in os.listdir(app.config['FRAMES_FOLDER']):
-            image = cv.imread(os.path.join(app.config['FRAMES_FOLDER'], f"frame_{frame}.jpg"))
-            resized_image = cv.resize(image, (640,640))
+            original_image = cv.imread(os.path.join(app.config['FRAMES_FOLDER'], f"frame_{frame}.jpg"))
+            # Crop image to the dimensions
+            cropped_image = original_image[y:y+h, x:x+w]
+            resized_image = cv.resize(cropped_image, (640,640))
             grayscaled_image = cv.cvtColor(resized_image, cv.COLOR_BGR2GRAY)
             # No blur since image is already basic enough
             cv.imwrite(os.path.join(app.config['PROCESSED_FRAMES_FOLDER'], f"frame_{frame}.jpg"), grayscaled_image)
@@ -32,15 +36,14 @@ def preprocess_frames(frames: list[int]):
 
 def get_string_from_frames(): 
     processed_frames = sorted(os.listdir(app.config['PROCESSED_FRAMES_FOLDER']), key = lambda x: get_last_number(x))
-    best_frame = None
+    best_frame = None 
     for processed_frame in processed_frames:
         imgPath = os.path.join(app.config['PROCESSED_FRAMES_FOLDER'], processed_frame)
         grayscaled_image = cv.imread(imgPath,cv.IMREAD_GRAYSCALE)
-        cropped_image = grayscaled_image[100:540, 0:640]
-        output = cv.cvtColor(cropped_image, cv.COLOR_GRAY2BGR) 
+        output = cv.cvtColor(grayscaled_image, cv.COLOR_GRAY2BGR) 
         # Edge Detection CannyEdge
-        cannyEdge = cv.Canny(cropped_image, 100,150)
-        height, width = cropped_image.shape
+        cannyEdge = cv.Canny(grayscaled_image, 100,150)
+        height, width = grayscaled_image.shape
 
         #Using probablistic version so I can use the folloiwing:
         # minLineLength to avoid detecting numbers
@@ -51,7 +54,7 @@ def get_string_from_frames():
             rho=1,
             theta=np.pi / 180,
             threshold=80,
-            minLineLength=img.shape[1]//5, # only long lines
+            minLineLength=width//1.5, # only long lines
             maxLineGap=40
         )
 
@@ -60,7 +63,7 @@ def get_string_from_frames():
 
         # Since im already merging the x coords I now need to merge lines that are close on the x coordinates
         count = 0
-        merged_lines = set()
+        merged_lines = []
         previous_y = set() 
 
         if lines is not None:
@@ -71,7 +74,7 @@ def get_string_from_frames():
                 if abs(y2 - y1) < 5:  # Y diff is very small meaning horizontal
                     if all(abs(middle_y - py) > 10 for py in previous_y):
                         length = abs(x1 - x2)
-                        merged_lines.add([0, middle_y, width, middle_y])
+                        merged_lines.append([0, middle_y, width, middle_y])
                         previous_y.add(middle_y)
 
         if merged_lines is not None:
@@ -80,14 +83,20 @@ def get_string_from_frames():
                 x1, y1, x2, y2 = merged_lines[i]
 
                 cv.line(output, (int(x1), int(y1)), (int(x2), int(y2)), (0, 0, 255), 2)
+                # Print image with lines
+                
 
-        if len(merged_lines) > 6:
+            plt.imshow(cv.cvtColor(output, cv.COLOR_BGR2RGB))
+            plt.show()
+
+        print(f"Merged lines: {len(merged_lines)}")
+        if len(merged_lines) == 6:
             best_frame = processed_frame
+            app.tracker.set_strings(merged_lines)
+    print(f"Best frame: {best_frame}, Type: {type(best_frame)}")
+
     if best_frame is None:
         return {"message": "Could not extract strings", "success": False}
-    else:
-        app.tracker.set_strings(merged_lines)
-        return {"message": "Strings extracted", "success": True}
             
     
 

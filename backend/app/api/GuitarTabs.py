@@ -10,6 +10,8 @@ class GuitarTabs:
 
     def set_strings(self, strings):
         self.strings = strings
+
+
 class Tab:
     def __init__(self, fret, position):
         self.fret = fret

@@ -12,3 +12,4 @@ class Config:
     UPLOAD_FOLDER = upload_path
     FRAMES_FOLDER = frames_path
     PROCESSED_FRAMES_FOLDER = processed_frames_path
+    TESTING = True

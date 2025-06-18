@@ -41,8 +41,12 @@ def register_routes(app):
     @app.route("/api/confirmed_frames", methods = ["POST"])
     def confirmed_frames():
         frames = request.json.get("frames")
-        print(frames)
-        print(type(frames))
-        preprocess_frames(frames)
+        dimensions = request.json.get("dimensions")
+        #print(frames)
+       #print(type(frames))
+        print(dimensions)
+        preprocess_frames(frames, dimensions)
+        strings_capture_result = get_string_from_frames()
+        if not strings_capture_result["success"]:
+            return strings_capture_result
         return {"success":True, "status": 200}
-
