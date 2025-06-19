@@ -6,3 +6,5 @@ data/processed_frames/*
 !static/frames/.gitkeep
 !data/processed_frames/.gitkeep
 *.jpg
+__pycache__/
+*.py[cod]
