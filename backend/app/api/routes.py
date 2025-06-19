@@ -3,6 +3,7 @@ from flask import current_app as app
 from werkzeug.utils import secure_filename
 from app.services.extract_frames import extract_frames
 from app.services.process_frames import preprocess_frames, get_string_from_frames
+from app.model.predict import predict_frets
 import os
 def allowed_file(filename):
     return '.' in filename and \
@@ -41,6 +42,7 @@ def register_routes(app):
     @app.route("/api/confirmed_frames", methods = ["POST"])
     def confirmed_frames():
         frames = request.json.get("frames")
+        # Crop the frames to the dimensions before resizing
         dimensions = request.json.get("dimensions")
         #print(frames)
        #print(type(frames))
@@ -49,4 +51,5 @@ def register_routes(app):
         strings_capture_result = get_string_from_frames()
         if not strings_capture_result["success"]:
             return strings_capture_result
+        predict_frets()
         return {"success":True, "status": 200}

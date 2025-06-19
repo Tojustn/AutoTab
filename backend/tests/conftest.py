@@ -1,15 +1,18 @@
 import pytest
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from app import create_app
+
 @pytest.fixture()
 def app():
     app = create_app()
-    app.config.update({
-        "TESTING": True,
-    })
+
 
     yield app 
 
     # teardown 
+    
 
 # Pytest looks for app fixture and passes it to the client function
 @pytest.fixture()

@@ -13,9 +13,10 @@ class GuitarTabs:
 
 
 class Tab:
-    def __init__(self, fret, position):
+    def __init__(self, fret, position, frame):
         self.fret = fret
         self.position = position
+        self.frame = frame
 
-    def __hash__(self):
-        return hash((self.fret, self.position))  # make it hashable
+    def __str__(self):
+        print(f"Fret: {self.fret}, Position: {self.position}, Frame: {self.frame}")

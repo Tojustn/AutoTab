@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
 from app.api.routes import register_routes
-from .config import Config
+from .config import Config, TestConfig
 from .api.GuitarTabs import GuitarTabs
 
 def create_app():
@@ -9,7 +9,8 @@ def create_app():
     CORS(app)
     
     # Temporary folder for saving video files
-    app.config.from_object(Config)
+    app.config.from_object(TestConfig)
+
     register_routes(app)
 
     tracker = GuitarTabs()

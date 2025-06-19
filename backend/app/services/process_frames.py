@@ -3,7 +3,6 @@ import os
 from flask import current_app as app
 import matplotlib.pyplot as plt
 import numpy as np
-
 def get_last_number(frame: str) -> int:
     return int(frame.split('_')[-1].split('.')[0])
 
@@ -20,10 +19,10 @@ def preprocess_frames(frames: list[int], dimensions: dict):
             original_image = cv.imread(os.path.join(app.config['FRAMES_FOLDER'], f"frame_{frame}.jpg"))
             # Crop image to the dimensions
             cropped_image = original_image[y:y+h, x:x+w]
-            resized_image = cv.resize(cropped_image, (640,640))
-            grayscaled_image = cv.cvtColor(resized_image, cv.COLOR_BGR2GRAY)
+            # Resize the image without stretching
+            resized_image = cv.resize(cropped_image, (640,640), interpolation=cv.INTER_AREA)
             # No blur since image is already basic enough
-            cv.imwrite(os.path.join(app.config['PROCESSED_FRAMES_FOLDER'], f"frame_{frame}.jpg"), grayscaled_image)
+            cv.imwrite(os.path.join(app.config['PROCESSED_FRAMES_FOLDER'], f"frame_{frame}.jpg"), resized_image)
             previous_frames.add(frame)
         else:
             continue
@@ -43,7 +42,8 @@ def get_string_from_frames():
         output = cv.cvtColor(grayscaled_image, cv.COLOR_GRAY2BGR) 
         # Edge Detection CannyEdge
         cannyEdge = cv.Canny(grayscaled_image, 100,150)
-        height, width = grayscaled_image.shape
+        # Ignore color
+        height, width = grayscaled_image.shape[:2]
 
         #Using probablistic version so I can use the folloiwing:
         # minLineLength to avoid detecting numbers
@@ -64,6 +64,7 @@ def get_string_from_frames():
         # Since im already merging the x coords I now need to merge lines that are close on the x coordinates
         count = 0
         merged_lines = []
+
         previous_y = set() 
 
         if lines is not None:
@@ -99,6 +100,3 @@ def get_string_from_frames():
         return {"message": "Could not extract strings", "success": False}
             
     
-
-def label_frames():
-    pass

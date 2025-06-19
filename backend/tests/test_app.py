@@ -1,4 +1,6 @@
 import io
+from main import app
+from app.model.predict import predict_frets
 def test_upload_video(client):
 
     # In memory fake video
@@ -35,3 +37,11 @@ def test_confirmed_frames(client):
 
     response = client.post("/api/confirmed_frames", json=payload, content_type="application/json")
     assert response.json  == {"success":True, "status": 200} or response.json == {"message": "Could not extract strings", "success": False}
+
+
+
+def test_predict_frets(client):
+    with app.app_context():
+        # Need app context since not in a request
+        response = predict_frets()
+        assert response == {"success":True, "status": 200}
