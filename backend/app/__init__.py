@@ -9,7 +9,7 @@ def create_app():
     CORS(app)
     
     # Temporary folder for saving video files
-    app.config.from_object(TestConfig)
+    app.config.from_object(Config)
 
     register_routes(app)
 
@@ -18,3 +18,6 @@ def create_app():
 
 
     return app
+
+@app.teardown_appcontext
+    def cleanup(exception):

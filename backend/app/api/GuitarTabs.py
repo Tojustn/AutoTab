@@ -1,7 +1,7 @@
 class GuitarTabs:
     def __init__(self, strings = None, tabs = None):
         self.strings = strings
-        self.tabs = tabs
+        self.tabs = set() 
     def add_tab(self,tab):
         self.tabs.add(tab)
 
@@ -19,4 +19,5 @@ class Tab:
         self.frame = frame
 
     def __str__(self):
-        print(f"Fret: {self.fret}, Position: {self.position}, Frame: {self.frame}")
+        return (f"Fret: {self.fret}, Position: {self.position}, Frame: {self.frame}")
+

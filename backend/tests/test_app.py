@@ -5,8 +5,10 @@ def test_upload_video(client):
 
     # In memory fake video
     video = (io.BytesIO(b"fake mp4 content"), "video.mp4")
+    new_line_per_second = 1
     data = {
         "video": video,
+        "new_line": new_line_per_second
     }
 
     response = client.post(

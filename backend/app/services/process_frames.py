@@ -3,11 +3,25 @@ import os
 from flask import current_app as app
 import matplotlib.pyplot as plt
 import numpy as np
+import json
 def get_last_number(frame: str) -> int:
     return int(frame.split('_')[-1].split('.')[0])
 
 
 def preprocess_frames(frames: list[int], dimensions: dict):
+    # Check if chosen_frames.json exists first
+    chosen_frames_path = os.path.join(app.config['FRAMES_FOLDER'], 'chosen_frames.json')
+    if not os.path.exists(chosen_frames_path):
+        print("chosen_frames.json not found")
+        return
+    
+    # Open and read the file
+    with open(chosen_frames_path, 'r') as f:
+        frame_data = json.load(f)
+    
+    # Remove the file after reading
+    os.remove(chosen_frames_path)
+    
     # x left, y top, w width, h height
     x,y,w,h = dimensions.values()
     previous_frames = set()
@@ -15,14 +29,13 @@ def preprocess_frames(frames: list[int], dimensions: dict):
     os.makedirs(app.config['PROCESSED_FRAMES_FOLDER'], exist_ok=True)
     
     for frame in frames:
-        if frame not in previous_frames and f"frame_{frame}.jpg" in os.listdir(app.config['FRAMES_FOLDER']):
+     
+        if (frame not in previous_frames and f"frame_{frame}.jpg" in os.listdir(app.config['FRAMES_FOLDER'])
+             and frame_data["chosen_frames"] in get_last_number(frame)):
             original_image = cv.imread(os.path.join(app.config['FRAMES_FOLDER'], f"frame_{frame}.jpg"))
             # Crop image to the dimensions
             cropped_image = original_image[y:y+h, x:x+w]
-            # Resize the image without stretching
-            resized_image = cv.resize(cropped_image, (640,640), interpolation=cv.INTER_AREA)
-            # No blur since image is already basic enough
-            cv.imwrite(os.path.join(app.config['PROCESSED_FRAMES_FOLDER'], f"frame_{frame}.jpg"), resized_image)
+            cv.imwrite(os.path.join(app.config['PROCESSED_FRAMES_FOLDER'], f"frame_{frame}.jpg"), cropped_image)
             previous_frames.add(frame)
         else:
             continue
@@ -73,7 +86,7 @@ def get_string_from_frames():
                 middle_y = abs(y1+y2)/2
                # Filter: Only nearly horizontal lines
                 if abs(y2 - y1) < 5:  # Y diff is very small meaning horizontal
-                    if all(abs(middle_y - py) > 10 for py in previous_y):
+                    if all(abs(middle_y - py) > height/10 for py in previous_y):
                         length = abs(x1 - x2)
                         merged_lines.append([0, middle_y, width, middle_y])
                         previous_y.add(middle_y)
@@ -98,5 +111,6 @@ def get_string_from_frames():
 
     if best_frame is None:
         return {"message": "Could not extract strings", "success": False}
+    return {"message": "Strings extracted", "success": True}
             
     
