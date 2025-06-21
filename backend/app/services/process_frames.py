@@ -4,13 +4,15 @@ from flask import current_app as app
 import matplotlib.pyplot as plt
 import numpy as np
 import json
+from app.services.user_session import get_user_paths
 def get_last_number(frame: str) -> int:
+    print(frame)
     return int(frame.split('_')[-1].split('.')[0])
 
 
 def preprocess_frames(frames: list[int], dimensions: dict):
     # Check if chosen_frames.json exists first
-    chosen_frames_path = os.path.join(app.config['FRAMES_FOLDER'], 'chosen_frames.json')
+    chosen_frames_path = os.path.join(get_user_paths()['file_path'], 'chosen_frames.json')
     if not os.path.exists(chosen_frames_path):
         print("chosen_frames.json not found")
         return
@@ -26,31 +28,31 @@ def preprocess_frames(frames: list[int], dimensions: dict):
     x,y,w,h = dimensions.values()
     previous_frames = set()
     # Ensure processed frames directory exists
-    os.makedirs(app.config['PROCESSED_FRAMES_FOLDER'], exist_ok=True)
+    os.makedirs(get_user_paths()['processed_path'], exist_ok=True)
     
+
     for frame in frames:
      
-        if (frame not in previous_frames and f"frame_{frame}.jpg" in os.listdir(app.config['FRAMES_FOLDER'])
-             and frame_data["chosen_frames"] in get_last_number(frame)):
-            original_image = cv.imread(os.path.join(app.config['FRAMES_FOLDER'], f"frame_{frame}.jpg"))
+        if (frame not in previous_frames and f"frame_{frame}.jpg" in os.listdir(get_user_paths()['file_path'])):
+            original_image = cv.imread(os.path.join(get_user_paths()['file_path'], f"frame_{frame}.jpg"))
             # Crop image to the dimensions
             cropped_image = original_image[y:y+h, x:x+w]
-            cv.imwrite(os.path.join(app.config['PROCESSED_FRAMES_FOLDER'], f"frame_{frame}.jpg"), cropped_image)
+            cv.imwrite(os.path.join(get_user_paths()['processed_path'], f"frame_{frame}.jpg"), cropped_image)
             previous_frames.add(frame)
         else:
             continue
     
     # Delete all files in the FRAMES_FOLDER after processing
-    for filename in os.listdir(app.config['FRAMES_FOLDER']):
-        file_path = os.path.join(app.config['FRAMES_FOLDER'], filename)
+    for filename in os.listdir(get_user_paths()['file_path']):
+        file_path = os.path.join(get_user_paths()['file_path'], filename)
         if os.path.isfile(file_path):
             os.remove(file_path)
 
 def get_string_from_frames(): 
-    processed_frames = sorted(os.listdir(app.config['PROCESSED_FRAMES_FOLDER']), key = lambda x: get_last_number(x))
+    processed_frames = sorted(os.listdir(get_user_paths()['processed_path']), key = lambda x: get_last_number(x))
     best_frame = None 
     for processed_frame in processed_frames:
-        imgPath = os.path.join(app.config['PROCESSED_FRAMES_FOLDER'], processed_frame)
+        imgPath = os.path.join(get_user_paths()['processed_path'], processed_frame)
         grayscaled_image = cv.imread(imgPath,cv.IMREAD_GRAYSCALE)
         output = cv.cvtColor(grayscaled_image, cv.COLOR_GRAY2BGR) 
         # Edge Detection CannyEdge

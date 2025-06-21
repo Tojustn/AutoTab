@@ -1,7 +1,9 @@
 class GuitarTabs:
-    def __init__(self, strings = None, tabs = None):
+    def __init__(self, height, width, strings = None, tabs = None):
         self.strings = strings
         self.tabs = set() 
+        self.height = height
+        self.width = width
     def add_tab(self,tab):
         self.tabs.add(tab)
 
@@ -11,6 +13,10 @@ class GuitarTabs:
     def set_strings(self, strings):
         self.strings = strings
 
+    def set_height(self, height):
+        self.height = height
+    def set_width(self, width):
+        self.width = width
 
 class Tab:
     def __init__(self, fret, position, frame):
