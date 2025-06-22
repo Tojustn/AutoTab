@@ -6,6 +6,7 @@ from app.services.is_chosen import is_chosen
 from app.services.process_frames import preprocess_frames, get_string_from_frames, get_last_number
 from app.model.predict import predict_frets
 from app.services.user_session import get_session_id, init_session, get_user_paths
+from app.services.post_process_frames import render_tabs
 import os
 
 
@@ -31,7 +32,6 @@ def register_routes(app):
 
         video = request.files['video']
         new_line_per_second = request.form.get("new_line")
-        print(f"Received new_line from form: {new_line_per_second}")
         
         # Handle the new_line parameter more robustly
         try:
@@ -39,7 +39,6 @@ def register_routes(app):
         except (ValueError, TypeError):
             new_line_per_second = 1
         
-        print(f"Using new_line_per_second: {new_line_per_second}")
         
         if not allowed_file(video.filename):
             return {"message":"File format not allowed", "status": 404}
@@ -83,4 +82,7 @@ def register_routes(app):
         predict_frets_result = predict_frets()
         if not predict_frets_result["success"]:
             return {"message": "Could not predict frets", "success": False, "status": 400}
-        return {"success":True, "status": 200}
+        render_tabs_result = render_tabs()
+        if not render_tabs_result["success"]:
+            return {"message": "Could not render tabs", "success": False, "status": 400}
+        return {"success":True, "status": 200, "result": render_tabs_result["result"]}

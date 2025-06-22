@@ -41,6 +41,9 @@ def preprocess_frames(frames: list[int], dimensions: dict):
             previous_frames.add(frame)
         else:
             continue
+
+    app.tracker.set_height(h)
+    app.tracker.set_width(w)
     
     # Delete all files in the FRAMES_FOLDER after processing
     for filename in os.listdir(get_user_paths()['file_path']):
@@ -102,14 +105,14 @@ def get_string_from_frames():
                 # Print image with lines
                 
 
-            plt.imshow(cv.cvtColor(output, cv.COLOR_BGR2RGB))
-            plt.show()
+            #plt.imshow(cv.cvtColor(output, cv.COLOR_BGR2RGB))
+            #plt.show()
 
-        print(f"Merged lines: {len(merged_lines)}")
+        #print(f"Merged lines: {len(merged_lines)}")
         if len(merged_lines) == 6:
             best_frame = processed_frame
             app.tracker.set_strings(merged_lines)
-    print(f"Best frame: {best_frame}, Type: {type(best_frame)}")
+    #print(f"Best frame: {best_frame}, Type: {type(best_frame)}")
 
     if best_frame is None:
         return {"message": "Could not extract strings", "success": False}

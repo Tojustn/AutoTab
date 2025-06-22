@@ -2,6 +2,7 @@ from flask import session, has_request_context
 import uuid
 import os 
 import shutil
+from flask import current_app as app
 def get_session_id():
     """Generate a new unique session ID"""
     return uuid.uuid4()
@@ -19,10 +20,15 @@ def get_user_paths():
         return None
     base_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
     # print(base_dir)
+    if not app.config["TESTING"]:
+        upload_path = os.path.join(base_dir, 'user_data', session_id, 'static', 'raw_video')
+        file_path = os.path.join(base_dir, 'user_data', session_id, 'static', 'frames')
+        processed_path = os.path.join(base_dir, 'user_data', session_id, 'static', 'processed_frames')
+    else:
+        upload_path = os.path.join(base_dir, 'tests', 'assets', 'raw_video')
+        file_path = os.path.join(base_dir, 'tests', 'assets')
+        processed_path = os.path.join(base_dir, 'tests', 'assets')
 
-    upload_path = os.path.join(base_dir, 'user_data', session_id, 'static', 'raw_video')
-    file_path = os.path.join(base_dir, 'user_data', session_id, 'static', 'frames')
-    processed_path = os.path.join(base_dir, 'user_data', session_id, 'static', 'processed_frames')
     return {
         "upload_path": upload_path,
         "file_path": file_path,
