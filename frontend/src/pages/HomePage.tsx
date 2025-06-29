@@ -3,7 +3,7 @@ import api from "../api.ts";
 import { Button, CircularProgress, TextField, Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import ThemeButton from "../components/ThemeButton.tsx";
+import NavBar from "../components/NavBar.tsx";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -52,9 +52,11 @@ const HomePage = () => {
   };
 
   return (
-    <div className="min-h-screen w-screen bg-white text-black items-center pt-10">
-      <h1 className="text-4xl font-bold text-center mb-10">AutoTab</h1>
-      <ThemeButton />
+    <Box
+      className="min-h-screen w-screen items-center "
+      sx={{ bgcolor: "background.default", color: "text.primary" }}
+    >
+      <NavBar />
       <div className="flex flex-col items-center justify-center h-dvh w-full">
         {isLoading ? (
           <CircularProgress className="text-center py-1 px-1" />
@@ -101,7 +103,7 @@ const HomePage = () => {
           </form>
         )}
       </div>
-    </div>
+    </Box>
   );
 };
 

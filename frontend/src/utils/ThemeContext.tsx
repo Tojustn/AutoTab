@@ -1,18 +1,28 @@
-import { createContext, useState } from "react";
-import type { ReactNode } from "react";
+import { createContext, useState, ReactNode } from "react";
+import {
+  ThemeProvider as MuiThemeProvider,
+  createTheme,
+} from "@mui/material/styles";
 
 export const ThemeContext = createContext<any>(null);
 
-// Destructure parameter
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useState("light");
+  const [mode, setMode] = useState<"light" | "dark">("light");
 
+  // Once the mode is changed the ThemeProvider is Rerun with the new mode
   const toggleTheme = () => {
-    theme === "light" ? setTheme("dark") : setTheme("light");
+    setMode((prev) => (prev === "light" ? "dark" : "light"));
   };
+
+  const theme = createTheme({
+    palette: {
+      mode,
+    },
+  });
+
   return (
-    <ThemeContext.Provider value={[theme, toggleTheme]}>
-      {children}
+    <ThemeContext.Provider value={[mode, toggleTheme]}>
+      <MuiThemeProvider theme={theme}>{children}</MuiThemeProvider>
     </ThemeContext.Provider>
   );
 };
