@@ -50,7 +50,7 @@ def register_routes(app):
         if not os.path.exists(os.path.join(user_paths["upload_path"], filename)):
             return {"message": "Could not extract frames", "status": 400}
         os.remove(os.path.join(user_paths["upload_path"], filename))  
-        return {"success":True, "status": 200}
+        return {"session_id": str(session.get("session_id")),"success":True, "status": 200}
 
     @app.route("/api/get_frames", methods = ["GET"])
     def get_frames():

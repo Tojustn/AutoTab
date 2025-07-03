@@ -68,7 +68,7 @@ def render_tabs():
         tab_frames = [ [] for i in range(6)]
         previous_tab_bounding_box = None
         
-        print(f"Starting frame {frame} with current_y = {current_y}")
+        # print(f"Starting frame {frame} with current_y = {current_y}")
         
         for tab in tabs_per_frame[frame]:
             # Make Bounding Boxes for each tab
@@ -79,57 +79,88 @@ def render_tabs():
             min_y = y1
             max_y = y2
             
-                        # String of the frame -1 is at e and 6 is at E
+            # String of the frame -1 is at e and 6 is at E
             tab_string = None
             for i, string in enumerate(string_locations_y):
                 if string >= min_y and string <= max_y:
                     tab_string = i
-            fret_number = FRET_MAPPING.get(tab.get_fret(),0)
-            # Check if we've moved to a new x position 
+                    break
+            
+            if tab_string is None:
+                return {"success": False, "status": 399, "message": "Could not classify string"}
+                
+            fret_number = FRET_MAPPING.get(tab.get_fret(), "0")
+            #print(f"Tab: {tab.get_fret()} Frame: {frame} Tab string: {tab_string} Fret number: {fret_number}\n"
+            #      f"Min x: {min_x} Max x: {max_x} Min y: {min_y} Max y: {max_y}")
+            
             if previous_tab_bounding_box is not None:
                 prev_min_x, prev_max_x, prev_min_y, prev_max_y = previous_tab_bounding_box
                 
                 # Check if current tab's bounding box intersects with previous tab's bounding box
                 # If they don't intersect horizontally, we've moved to a new time position
+                #print(f"Previous tab bounding box: {previous_tab_bounding_box}")
                 x_intersects = not (min_x > prev_max_x or max_x < prev_min_x)
-                
-                print(f"X intersects: {x_intersects}")
                 if not x_intersects:
-                    while current_y > -1:
-                        print(f"Current y: {current_y} Tab string: {tab_string}")
-                        if current_y == tab_string:
-                            tab_frames[current_y].append(f"-{fret_number}-")
-                        else:
-                            tab_frames[current_y].append(f"---")
-                            #print(f"Tab string: {tab_string} current_y: {current_y} Frame: {frame}")
-                        current_y -= 1
+                    # We need to fill in the strings from the previous column
+                    current_column = -1
+                    for i in range(6):
+                        if tab_frames[i] is not None:
+                            current_column = max(current_column, len(tab_frames[i]))
 
-                    # Reset for new time position
+                    for i in range(6):
+                        while len(tab_frames[i]) < current_column:
+                            tab_frames[i].append("---")
+
                     current_y = 5
                     current_x += 1
-                    previous_tab_bounding_box = None
+                    current_y = 5
+
+                    # Fill remaining strings from current_y down to 0
+                    while current_y >= 0:
+                        if tab_string == current_y:
+                            tab_frames[current_y].append(f"-{fret_number}-")
+                        else: 
+                            tab_frames[current_y].append("---")
+                        current_y -= 1
+                    
+                    current_y = 5
+                    current_x += 1
                     continue
-
-
-            print(f"Tab string: {tab_string} Fret: {tab.get_fret()} current_y: {current_y} Frame: {frame}")
-            if tab_string is None:
-                return {"success": False, "status": 400, "message": "Could not classify string"}
             
-            print(f"Before check - current_y: {current_y}, tab_string: {tab_string}")
-            if current_y != tab_string and current_y >= 0:
-                tab_frames[current_y].append("---")
+            # Fill strings above the current tab string
+            while current_y > tab_string and current_y >= 0:
+                if tab_frames[current_y] is None:
+                    tab_frames[current_y].append("---")
                 current_y -= 1
-            elif current_y == tab_string:
+            
+            # Add the current tab
+            if current_y == tab_string:
                 tab_frames[current_y].append(f"-{fret_number}-")
-            if current_y < 0:
-                current_y = 5 
-                current_x += 1
+                current_y -= 1
+            print(f"tab_frames: {tab_frames}") 
+            # Update previous bounding box
             previous_tab_bounding_box = (min_x, max_x, min_y, max_y)
-
+        
+        # Fill any remaining strings at the end of the frame
+        while current_y > -1:
+            tab_frames[current_y].append("---")
+            current_y -= 1
+            
         all_tab_frames.append(tab_frames)
 
+    max_string_length = 0
+    for frame in all_tab_frames:
+        for string in frame:
+            max_string_length = max(max_string_length, len(string))
+
+    # Extend all strings to the same length
+    for frame in all_tab_frames:
+        for string in frame:
+            while len(string) < max_string_length:
+                string.append("---")
+
     final_result = "" 
-    print(all_tab_frames)
+    #print(all_tab_frames)
     for frame in all_tab_frames:
         for i in range(len(frame)-1,-1,-1):
             string_name = note_list[i]
