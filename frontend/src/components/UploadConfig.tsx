@@ -23,7 +23,6 @@ const UploadConfig = (props: any) => {
   const [secondsPerFrame, setSecondsPerFrame] = useState<number | undefined>();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("changing files");
     if (event.target.files && event.target.files[0]) {
       setFile(event.target.files[0]);
     }
@@ -41,6 +40,7 @@ const UploadConfig = (props: any) => {
     event: React.FormEvent<HTMLFormElement>
   ) => {
     console.log("Submitting Upload");
+
     setIsLoading(true);
     setLoadingMessage("Uploading files...");
     event.preventDefault();
@@ -57,17 +57,23 @@ const UploadConfig = (props: any) => {
       ) {
         throw new Error("Seconds per frame must be a positive integer");
       }
-      formData.append("file", file);
+
+      formData.append("video", file);
       if (secondsPerFrame !== undefined) {
-        formData.append("secondsPerFrame", String(secondsPerFrame));
+        formData.append("new_line", String(secondsPerFrame));
       }
+      console.log(formData);
       // Send with credentials to make session id
       const response = await api.post("/upload", formData, {
         withCredentials: true,
       });
-      setSessionId(response.data.sessionId);
+      setSessionId(response.data.session_id);
       setIsLoading(false);
-      setCurrentPhase("choosing");
+      if (response.data.success) {
+        setCurrentPhase("choosing");
+      } else {
+        throw new Error(`${response.data.message}`);
+      }
       console.log(response);
     } catch (error) {
       alert(error);
@@ -89,10 +95,13 @@ const UploadConfig = (props: any) => {
           tabIndex={-1}
           startIcon={<CloudUploadIcon />}
           className="px-4 py-2"
-          onChange={handleFileChange}
         >
           Upload files
-          <VisuallyHiddenInput type="file" name="files" multiple />
+          <VisuallyHiddenInput
+            type="file"
+            name="video"
+            onChange={handleFileChange}
+          />
         </Button>
       </Box>
       <Box>

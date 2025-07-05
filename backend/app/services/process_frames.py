@@ -6,41 +6,32 @@ import numpy as np
 import json
 from app.services.user_session import get_user_paths
 def get_last_number(frame: str) -> int:
-    print(frame)
     return int(frame.split('_')[-1].split('.')[0])
 
 
-def preprocess_frames(frames: list[int], dimensions: dict):
-    # Check if chosen_frames.json exists first
-    chosen_frames_path = os.path.join(get_user_paths()['file_path'], 'chosen_frames.json')
-    if not os.path.exists(chosen_frames_path):
-        print("chosen_frames.json not found")
-        return
-    
-    # Open and read the file
-    with open(chosen_frames_path, 'r') as f:
-        frame_data = json.load(f)
-    
-    # Remove the file after reading
-    os.remove(chosen_frames_path)
-    
+def preprocess_frames(dimensions: dict):
     # x left, y top, w width, h height
     x,y,w,h = dimensions.values()
     previous_frames = set()
     # Ensure processed frames directory exists
     os.makedirs(get_user_paths()['processed_path'], exist_ok=True)
     
+    # Get all frame files from the frames folder
+    frames_folder = get_user_paths()['file_path']
+    frame_files = [f for f in os.listdir(frames_folder) if f.startswith('frame_') and f.endswith('.jpg')]
+    
+    # Sort frames by their number
+    frame_files.sort(key=lambda x: get_last_number(x))
 
-    for frame in frames:
-     
-        if (frame not in previous_frames and f"frame_{frame}.jpg" in os.listdir(get_user_paths()['file_path'])):
-            original_image = cv.imread(os.path.join(get_user_paths()['file_path'], f"frame_{frame}.jpg"))
+    for frame_file in frame_files:
+        frame_number = get_last_number(frame_file)
+        
+        if frame_number not in previous_frames:
+            original_image = cv.imread(os.path.join(frames_folder, frame_file))
             # Crop image to the dimensions
             cropped_image = original_image[y:y+h, x:x+w]
-            cv.imwrite(os.path.join(get_user_paths()['processed_path'], f"frame_{frame}.jpg"), cropped_image)
-            previous_frames.add(frame)
-        else:
-            continue
+            cv.imwrite(os.path.join(get_user_paths()['processed_path'], f"frame_{frame_number}.jpg"), cropped_image)
+            previous_frames.add(frame_number)
 
     app.tracker.set_height(h)
     app.tracker.set_width(w)

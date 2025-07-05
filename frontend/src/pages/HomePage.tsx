@@ -9,6 +9,7 @@ import ResultConfig from "../components/ResultConfig.tsx";
 const HomePage = () => {
   const [sessionId, setSessionId] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const [result, setResult] = useState("");
   // Current phase of the loading process
   const [currentPhase, setCurrentPhase] = useState<
     "upload" | "choosing" | "results"
@@ -24,7 +25,14 @@ const HomePage = () => {
         setSessionId={setSessionId}
       />
     ),
-    choosing: <ChoosingConfig />,
+    choosing: (
+      <ChoosingConfig
+        setLoadingMessage={setLoadingMessage}
+        setCurrentPhase={setCurrentPhase}
+        setIsLoading={setIsLoading}
+        setResult={setResult}
+      />
+    ),
     results: <ResultConfig />,
   };
 

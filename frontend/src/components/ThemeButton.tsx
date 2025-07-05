@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { ThemeContext } from "../utils/ThemeContext.tsx";
-import { Box, Button, Icon } from "@mui/material";
+import { Box } from "@mui/material";
 import Brightness7RoundedIcon from "@mui/icons-material/Brightness7Rounded";
 import Brightness5RoundedIcon from "@mui/icons-material/Brightness5Rounded";
 

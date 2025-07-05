@@ -13,10 +13,12 @@ def create_app():
     # Specify the path explicitly to ensure it's found
     load_dotenv()
     
+
     os.getenv("SECRET_KEY")
     app = Flask(__name__)
     app.secret_key = os.getenv("SECRET_KEY")
 
+    CORS(app, supports_credentials=True)
     # Temporary folder for saving video files
     app.config.from_object(Config)
 

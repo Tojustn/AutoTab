@@ -1,13 +1,15 @@
-from flask import Flask, flash, request, url_for, redirect, session
+from flask import Flask, flash, request, url_for, redirect, session, send_from_directory
 from flask import current_app as app
 from werkzeug.utils import secure_filename
 from app.services.extract_frames import extract_frames
 from app.services.is_chosen import is_chosen
 from app.services.process_frames import preprocess_frames, get_string_from_frames, get_last_number
 from app.model.predict import predict_frets
-from app.services.user_session import get_session_id, init_session, get_user_paths
+from app.services.user_session import get_session_id, init_session, get_user_paths, cleanup_user_data
 from app.services.post_process_frames import render_tabs
 import os
+import shutil
+
 
 
 def allowed_file(filename):
@@ -23,9 +25,16 @@ def register_routes(app):
         if(session.get("session_id") is None):
             init_session()
         user_paths = get_user_paths()
-        os.makedirs(user_paths["upload_path"], exist_ok=True)
-        os.makedirs(user_paths["file_path"], exist_ok=True)
-        os.makedirs(user_paths["processed_path"], exist_ok=True)
+        # Remove directories if they exist, then recreate them
+        for path in [user_paths["upload_path"], user_paths["file_path"], user_paths["processed_path"]]:
+            if os.path.exists(path):
+                shutil.rmtree(path)
+        os.makedirs(user_paths["upload_path"], exist_ok=False)
+        os.makedirs(user_paths["file_path"], exist_ok=False)
+        os.makedirs(user_paths["processed_path"], exist_ok=False)
+
+        if not request.files:
+            return {"message": "No files received at all", "success": False} 
 
         if 'video' not in request.files:
             return {"message": "Missing 'video' in request.files", "status": 400}
@@ -42,6 +51,7 @@ def register_routes(app):
         
         if not allowed_file(video.filename):
             return {"message":"File format not allowed", "status": 404}
+        
 
         
         filename = secure_filename(video.filename)
@@ -52,8 +62,8 @@ def register_routes(app):
         os.remove(os.path.join(user_paths["upload_path"], filename))  
         return {"session_id": str(session.get("session_id")),"success":True, "status": 200}
 
-    @app.route("/api/get_frames", methods = ["GET"])
-    def get_frames():
+    @app.route("/api/get_frame", methods = ["GET"])
+    def get_frame():
         if(session.get("session_id") is None):
             init_session()
         user_paths = get_user_paths()
@@ -61,8 +71,14 @@ def register_routes(app):
         frames = [frame for frame in os.listdir(user_paths["file_path"]) if frame.endswith('.jpg')]
         frames = sorted(frames, key = lambda x: get_last_number(x))
 
+        frame= frames[0]
         # return file names
-        return [(f"/user_data/{session.get('session_id')}/static/frames/{frame}", is_chosen(frame)) for frame in frames]
+        return (f"/user_data/{session.get('session_id')}/static/frames/{frame}")
+
+    @app.route('/user_data/<session_id>/static/frames/<filename>')
+    def serve_frames(session_id, filename):
+        return send_from_directory(os.path.join(os.getcwd(), f"user_data/{session_id}/static/frames"), filename)
+
     
     # Get the confirmed frames and send in as a list of numbers
     @app.route("/api/confirmed_frames", methods = ["POST"])
@@ -86,3 +102,8 @@ def register_routes(app):
         if not render_tabs_result["success"]:
             return {"message": "Could not render tabs", "success": False, "status": 400}
         return {"success":True, "status": 200, "result": render_tabs_result["result"]}
+    
+    # If a route fails, cleanup the user data so no errors
+    @app.route("/api/cleanup", methods = ["DELETE"])
+    def cleanup():
+        cleanup_user_data();

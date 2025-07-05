@@ -1,16 +1,8 @@
-import axios from 'axios'
+import axios from "axios";
 
-const BACKEND_API = 'http://localhost:5000'
+const BACKEND_API = "http://localhost:5000/api";
 const api = axios.create({
-    baseURL: BACKEND_API,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-})
+  baseURL: BACKEND_API,
+});
 
-
-
-
-
-
-export default api
+export default api;

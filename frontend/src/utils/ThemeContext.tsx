@@ -7,7 +7,7 @@ import {
 export const ThemeContext = createContext<any>(null);
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [mode, setMode] = useState<"light" | "dark">("light");
+  const [mode, setMode] = useState<"light" | "dark">("dark");
 
   // Once the mode is changed the ThemeProvider is Rerun with the new mode
   const toggleTheme = () => {
