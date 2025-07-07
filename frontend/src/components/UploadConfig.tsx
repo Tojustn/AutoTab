@@ -1,5 +1,5 @@
 import { Box, Button, TextField } from "@mui/material";
-import { useState, React } from "react";
+import { useState } from "react";
 import api from "../api";
 
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
@@ -17,8 +17,7 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 });
 const UploadConfig = (props: any) => {
-  const { setLoadingMessage, setCurrentPhase, setIsLoading, setSessionId } =
-    props;
+  const { setLoadingMessage, setCurrentPhase, setIsLoading } = props;
   const [file, setFile] = useState<File | undefined>();
   const [secondsPerFrame, setSecondsPerFrame] = useState<number | undefined>();
 
@@ -63,11 +62,9 @@ const UploadConfig = (props: any) => {
         formData.append("new_line", String(secondsPerFrame));
       }
       console.log(formData);
-      // Send with credentials to make session id
       const response = await api.post("/upload", formData, {
         withCredentials: true,
       });
-      setSessionId(response.data.session_id);
       setIsLoading(false);
       if (response.data.success) {
         setCurrentPhase("choosing");

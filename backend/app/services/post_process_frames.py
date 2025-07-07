@@ -43,7 +43,7 @@ def render_tabs():
     # Get the maximum number of frets in a frame
     max_frets_in_frame = max(frets_per_frame.values())
 
-    print(f"Frets per frame: {frets_per_frame}")
+    # print(f"Frets per frame: {frets_per_frame}")
     # Sort by frames then by position in x
     sorted_tabs = sorted(tabs, key = lambda x: (x.get_frame(), x.get_position()[0]))
 
@@ -137,7 +137,7 @@ def render_tabs():
             if current_y == tab_string:
                 tab_frames[current_y].append(f"-{fret_number}-")
                 current_y -= 1
-            print(f"tab_frames: {tab_frames}") 
+            # print(f"tab_frames: {tab_frames}") 
             # Update previous bounding box
             previous_tab_bounding_box = (min_x, max_x, min_y, max_y)
         
@@ -169,7 +169,7 @@ def render_tabs():
 
         final_result += "\n"
 
-    print(final_result)
+    # print(final_result)
 
     
     return {

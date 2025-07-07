@@ -7,7 +7,6 @@ import ChoosingConfig from "../components/ChoosingConfig.tsx";
 import ResultConfig from "../components/ResultConfig.tsx";
 
 const HomePage = () => {
-  const [sessionId, setSessionId] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState("");
   // Current phase of the loading process
@@ -22,7 +21,6 @@ const HomePage = () => {
         setLoadingMessage={setLoadingMessage}
         setCurrentPhase={setCurrentPhase}
         setIsLoading={setIsLoading}
-        setSessionId={setSessionId}
       />
     ),
     choosing: (
@@ -33,7 +31,7 @@ const HomePage = () => {
         setResult={setResult}
       />
     ),
-    results: <ResultConfig />,
+    results: <ResultConfig result={result} />,
   };
 
   return (

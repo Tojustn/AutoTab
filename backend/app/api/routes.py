@@ -1,6 +1,7 @@
 from flask import Flask, flash, request, url_for, redirect, session, send_from_directory
 from flask import current_app as app
 from werkzeug.utils import secure_filename
+import json
 from app.services.extract_frames import extract_frames
 from app.services.is_chosen import is_chosen
 from app.services.process_frames import preprocess_frames, get_string_from_frames, get_last_number
@@ -85,13 +86,21 @@ def register_routes(app):
     def confirmed_frames():
         if(session.get("session_id") is None):
             init_session()
-        frames = request.json.get("frames")
-        # Crop the frames to the dimensions before resizing
-        dimensions = request.json.get("dimensions")
-        #print(frames)
-       #print(type(frames))
+        
+        # Work for both JSOn and Form Data
+        if request.is_json:
+            data = request.get_json()
+            dimensions = data.get("dimensions")
+            
+        elif "dimensions" in request.form:
+            # Parse json into a python dictionary
+            dimensions = json.loads(request.form["dimensions"])
+
+        for value in dimensions:
+            dimensions[value] = int(dimensions[value])
         print(dimensions)
-        preprocess_frames(frames, dimensions)
+        
+        preprocess_frames(dimensions)
         strings_capture_result = get_string_from_frames()
         if not strings_capture_result["success"]:
             return strings_capture_result

@@ -6,23 +6,24 @@ import ReactCrop, { type Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import api from "../api";
 
-interface ChoosingConfigProps {
+type ChoosingConfigProps = {
   setCurrentPhase: (phase: string) => void;
   setIsLoading: (loading: boolean) => void;
   setLoadingMessage: (message: string) => void;
   setResult: (result: string) => void;
-}
+};
 
 const ChoosingConfig = (props: ChoosingConfigProps) => {
   const [crop, setCrop] = useState<Crop>({
     unit: "px",
-    x: 25,
-    y: 25,
+    x: 10,
+    y: 10,
     width: 50,
     height: 50,
   });
   const { setCurrentPhase, setIsLoading, setLoadingMessage, setResult } = props;
   const [frame, setFrame] = useState<string | null>(null);
+  const [imgRef, setImgRef] = useState<HTMLImageElement | null>(null);
 
   useEffect(() => {
     const fetchFrame = async () => {
@@ -30,18 +31,42 @@ const ChoosingConfig = (props: ChoosingConfigProps) => {
         const response = await api.get("/get_frame", {
           withCredentials: true,
         });
+        if (response.data.success === false) {
+          throw new Error(response.data.message);
+        }
         setFrame(response.data);
       } catch (error) {
-        alert("Failed to fetch frame.");
+        alert(error);
         await api.post("/cleanup", {}, { withCredentials: true });
         setCurrentPhase("uploading");
+        setIsLoading(false);
       }
     };
 
     fetchFrame();
   }, []);
 
-  const submitCrop = async () => {
+  const submitCrop = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!imgRef) return;
+    // Calculate scale factors
+    const naturalWidth = imgRef.naturalWidth;
+    const naturalHeight = imgRef.naturalHeight;
+    const displayedWidth = imgRef.width;
+    const displayedHeight = imgRef.height;
+    const scaleX = naturalWidth / displayedWidth;
+    const scaleY = naturalHeight / displayedHeight;
+    // Convert crop values
+    const cropX = crop.x * scaleX;
+    const cropY = crop.y * scaleY;
+    const cropWidth = crop.width * scaleX;
+    const cropHeight = crop.height * scaleY;
+    console.log("Submitting crop with dimensions:", {
+      x: cropX,
+      y: cropY,
+      width: cropWidth,
+      height: cropHeight,
+    });
     try {
       setIsLoading(true);
       setLoadingMessage("Predicting and Formatting Tabs");
@@ -49,23 +74,26 @@ const ChoosingConfig = (props: ChoosingConfigProps) => {
       form.append(
         "dimensions",
         JSON.stringify({
-          x: crop.x,
-          y: crop.y,
-          width: crop.width,
-          height: crop.height,
+          x: cropX,
+          y: cropY,
+          width: cropWidth,
+          height: cropHeight,
         })
       );
       const response = await api.post("/confirmed_frames", form, {
         withCredentials: true,
       });
-      setResult(response.data);
+      setResult(response.data.result);
       setCurrentPhase("results");
       setIsLoading(false);
     } catch (error) {
       alert(error);
-      await api.post("/cleanup", {}, { withCredentials: true });
-      setCurrentPhase("upload");
-      setIsLoading(false);
+      try {
+        await api.delete("/cleanup", { withCredentials: true });
+      } finally {
+        setCurrentPhase("upload");
+        setIsLoading(false);
+      }
     }
   };
   return (
@@ -73,14 +101,17 @@ const ChoosingConfig = (props: ChoosingConfigProps) => {
       {frame ? (
         <form onSubmit={submitCrop} className="flex flex-col">
           <p className="my-3">
-            x: {crop.x.toFixed(2)} y: {crop.y.toFixed(2)} w:{" "}
-            {crop.width.toFixed(2)} h: {crop.height.toFixed(2)}
+            x: {crop.x.toFixed(2)}px y: {crop.y.toFixed(2)}px w:{" "}
+            {crop.width.toFixed(2)}px h: {crop.height.toFixed(2)}px
           </p>
-          <ReactCrop crop={crop} onChange={setCrop}>
+          <ReactCrop crop={crop} onChange={(c) => setCrop(c)}>
             <img
               src={`http://127.0.0.1:5000${frame}`}
               key={getFrameNumber(frame)}
               alt="Extracted Frame"
+              style={{ maxWidth: 1000, maxHeight: 1000 }}
+              ref={setImgRef}
+              onLoad={(e) => setImgRef(e.currentTarget)}
             />
           </ReactCrop>
           <Button
