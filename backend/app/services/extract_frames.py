@@ -2,9 +2,10 @@ import cv2 as cv
 import os
 from flask import current_app
 import json 
-
+from app.services.user_session import get_user_paths
 
 def extract_frames(filepath: str, new_line_per_second: int):
+    user_paths = get_user_paths()
     if (new_line_per_second == -1):
         new_line_per_second = 1
     videoObj = cv.VideoCapture(filepath) 
@@ -25,7 +26,7 @@ def extract_frames(filepath: str, new_line_per_second: int):
             break
             
         if frame_count % frame_seconds_interval == 0:
-            uploadFiles = os.path.join(current_app.config['FRAMES_FOLDER'], f"frame_{count}.jpg")
+            uploadFiles = os.path.join(user_paths["file_path"], f"frame_{count}.jpg")
             cv.imwrite(uploadFiles, image)
             count += 1
             
@@ -36,9 +37,8 @@ def extract_frames(filepath: str, new_line_per_second: int):
         frame_count += 1
     
     # Store all chosen frames in a json file
-    if chosen_frames:
-        with open(os.path.join(current_app.config['FRAMES_FOLDER'], 'chosen_frames.json'), 'w') as f:
-            json.dump({"chosen_frames": chosen_frames, "total_frames": count}, f, indent=2)
+    with open(os.path.join(user_paths["file_path"], 'chosen_frames.json'), 'w') as f:
+        json.dump({"chosen_frames": chosen_frames, "total_frames": count}, f, indent=2)
     
     videoObj.release()
     return {"success": True, "total_frames": count, "chosen_frames": chosen_frames}

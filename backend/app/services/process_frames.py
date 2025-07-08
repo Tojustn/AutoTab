@@ -4,53 +4,50 @@ from flask import current_app as app
 import matplotlib.pyplot as plt
 import numpy as np
 import json
+from app.services.user_session import get_user_paths
 def get_last_number(frame: str) -> int:
     return int(frame.split('_')[-1].split('.')[0])
 
 
-def preprocess_frames(frames: list[int], dimensions: dict):
-    # Check if chosen_frames.json exists first
-    chosen_frames_path = os.path.join(app.config['FRAMES_FOLDER'], 'chosen_frames.json')
-    if not os.path.exists(chosen_frames_path):
-        print("chosen_frames.json not found")
-        return
-    
-    # Open and read the file
-    with open(chosen_frames_path, 'r') as f:
-        frame_data = json.load(f)
-    
-    # Remove the file after reading
-    os.remove(chosen_frames_path)
-    
+def preprocess_frames(dimensions: dict):
     # x left, y top, w width, h height
+    print(type(dimensions))
     x,y,w,h = dimensions.values()
     previous_frames = set()
     # Ensure processed frames directory exists
-    os.makedirs(app.config['PROCESSED_FRAMES_FOLDER'], exist_ok=True)
+    os.makedirs(get_user_paths()['processed_path'], exist_ok=True)
     
-    for frame in frames:
-     
-        if (frame not in previous_frames and f"frame_{frame}.jpg" in os.listdir(app.config['FRAMES_FOLDER'])
-             and frame_data["chosen_frames"] in get_last_number(frame)):
-            original_image = cv.imread(os.path.join(app.config['FRAMES_FOLDER'], f"frame_{frame}.jpg"))
+    # Get all frame files from the frames folder
+    frames_folder = get_user_paths()['file_path']
+    frame_files = [f for f in os.listdir(frames_folder) if f.startswith('frame_') and f.endswith('.jpg')]
+    
+    # Sort frames by their number
+    frame_files.sort(key=lambda x: get_last_number(x))
+
+    for frame_file in frame_files:
+        frame_number = get_last_number(frame_file)
+        
+        if frame_number not in previous_frames:
+            original_image = cv.imread(os.path.join(frames_folder, frame_file))
             # Crop image to the dimensions
             cropped_image = original_image[y:y+h, x:x+w]
-            cv.imwrite(os.path.join(app.config['PROCESSED_FRAMES_FOLDER'], f"frame_{frame}.jpg"), cropped_image)
-            previous_frames.add(frame)
-        else:
-            continue
+            cv.imwrite(os.path.join(get_user_paths()['processed_path'], f"frame_{frame_number}.jpg"), cropped_image)
+            previous_frames.add(frame_number)
+
+    app.tracker.set_height(h)
+    app.tracker.set_width(w)
     
     # Delete all files in the FRAMES_FOLDER after processing
-    for filename in os.listdir(app.config['FRAMES_FOLDER']):
-        file_path = os.path.join(app.config['FRAMES_FOLDER'], filename)
+    for filename in os.listdir(get_user_paths()['file_path']):
+        file_path = os.path.join(get_user_paths()['file_path'], filename)
         if os.path.isfile(file_path):
             os.remove(file_path)
 
 def get_string_from_frames(): 
-    processed_frames = sorted(os.listdir(app.config['PROCESSED_FRAMES_FOLDER']), key = lambda x: get_last_number(x))
+    processed_frames = sorted(os.listdir(get_user_paths()['processed_path']), key = lambda x: get_last_number(x))
     best_frame = None 
     for processed_frame in processed_frames:
-        imgPath = os.path.join(app.config['PROCESSED_FRAMES_FOLDER'], processed_frame)
+        imgPath = os.path.join(get_user_paths()['processed_path'], processed_frame)
         grayscaled_image = cv.imread(imgPath,cv.IMREAD_GRAYSCALE)
         output = cv.cvtColor(grayscaled_image, cv.COLOR_GRAY2BGR) 
         # Edge Detection CannyEdge
@@ -100,14 +97,14 @@ def get_string_from_frames():
                 # Print image with lines
                 
 
-            plt.imshow(cv.cvtColor(output, cv.COLOR_BGR2RGB))
-            plt.show()
+            #plt.imshow(cv.cvtColor(output, cv.COLOR_BGR2RGB))
+            #plt.show()
 
-        print(f"Merged lines: {len(merged_lines)}")
+        #print(f"Merged lines: {len(merged_lines)}")
         if len(merged_lines) == 6:
             best_frame = processed_frame
             app.tracker.set_strings(merged_lines)
-    print(f"Best frame: {best_frame}, Type: {type(best_frame)}")
+    #print(f"Best frame: {best_frame}, Type: {type(best_frame)}")
 
     if best_frame is None:
         return {"message": "Could not extract strings", "success": False}

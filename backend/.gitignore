@@ -8,3 +8,6 @@ data/processed_frames/*
 *.jpg
 __pycache__/
 *.py[cod]
+
+.env
+/user_data/*
