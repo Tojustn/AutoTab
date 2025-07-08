@@ -7,7 +7,6 @@ const NavBar = () => {
       <h1 className="text-4xl font-bold text-center mb-10 px-2 py-1">
         AutoTab
       </h1>
-
       <ThemeButton />
     </div>
   );

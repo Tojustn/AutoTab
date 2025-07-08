@@ -71,6 +71,13 @@ const ChoosingConfig = (props: ChoosingConfigProps) => {
       setIsLoading(true);
       setLoadingMessage("Predicting and Formatting Tabs");
       const form = new FormData();
+      alert(
+        `Final Dimensions:\n` +
+        `x: ${Math.round(cropX)}\n` +
+        `y: ${Math.round(cropY)}\n` +
+        `width: ${Math.round(cropWidth)}\n` +
+        `height: ${Math.round(cropHeight)}`
+      );
       form.append(
         "dimensions",
         JSON.stringify({

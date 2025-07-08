@@ -5,6 +5,7 @@ import NavBar from "../components/NavBar.tsx";
 import UploadConfig from "../components/UploadConfig.tsx";
 import ChoosingConfig from "../components/ChoosingConfig.tsx";
 import ResultConfig from "../components/ResultConfig.tsx";
+import HowToUse from "../components/HowToUse.tsx";
 
 const HomePage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -49,6 +50,7 @@ const HomePage = () => {
         ) : (
           phaseMap[currentPhase]
         )}
+        <HowToUse />
       </div>
     </Box>
   );
