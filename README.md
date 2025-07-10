@@ -18,4 +18,4 @@ AutoTab is a web application that automatically extracts guitar tablature from v
 - **Video Processing:** cv2
 
 ## Upcoming Feature(s)
-- **Ability to choose the specific time interval you want the model to predict on**
+- **Ability to choose specific times you want the model to predict on**
