@@ -1,0 +1,14 @@
+FROM python:slim
+
+WORKDIR /backend
+
+COPY requirements.txt requirements.txt
+RUN pip install -r requirements.txt
+
+# Copy backend into backend the working directory
+COPY backend/ .
+
+# Will be ran on this port after forwarded
+EXPOSE 5000
+
+CMD ["python", "main.py"]
