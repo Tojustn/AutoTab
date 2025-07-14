@@ -1,14 +1,41 @@
-FROM python:slim
+FROM python:3.11-slim AS builder
 
-WORKDIR /backend
+# Install system dependencies needed for building packages
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+WORKDIR /app/backend
+COPY . .
 
-# Copy backend into backend the working directory
-COPY backend/ .
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Will be ran on this port after forwarded
+FROM python:3.11-slim AS production
+
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app/backend
+
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+
+# Copy application code
+COPY --from=builder /app/backend /app/backend
+
 EXPOSE 5000
 
 CMD ["python", "main.py"]

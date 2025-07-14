@@ -1,15 +1,18 @@
-FROM node:20.19-slim
+# Stage 1: Build the app
+FROM node:20-slim AS builder
 
 WORKDIR /frontend
-
-COPY package*.json ./
-
 RUN npm install -g pnpm
 
+COPY package*.json pnpm-lock.yaml ./
 RUN pnpm install
 
-COPY . . 
+COPY . .
+
+FROM node:20-slim
+
+# Copy only the build output from builder
+COPY --from=builder /frontend /frontend
 
 EXPOSE 5173
-
-CMD ["pnpm", "run", "dev"]
+CMD ["pnpm", "run dev"]

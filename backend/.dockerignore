@@ -7,3 +7,4 @@ user_data/
 .git
 .gitignore/
 .pytest_cache/
+.tests/

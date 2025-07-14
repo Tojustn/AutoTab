@@ -1,5 +1,5 @@
 Flask
-opencv-python
+opencv-python-headless
 numpy
 matplotlib
 flask_cors
