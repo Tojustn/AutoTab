@@ -42,25 +42,32 @@ def register_routes(app):
 
         video = request.files['video']
         new_line_per_second = request.form.get("new_line")
-        
-        # Handle the new_line parameter more robustly
-        try:
-            new_line_per_second = int(new_line_per_second) if new_line_per_second else 1
-        except (ValueError, TypeError):
-            new_line_per_second = 1
-        
-        
+        # Passed in as CSV
+        frames_chosen = request.form.get("selected_frames") 
+        frames_array = list(map(int, frames_chosen.split(","))) if frames_chosen else []
+        print(frames_array)
+
+
+
+        mode = "select" if frames_array is not None else "interval"  
+
         if not allowed_file(video.filename):
             return {"message":"File format not allowed", "status": 404}
         
+        if(new_line_per_second):
+            try:
+                new_line_per_second = int(new_line_per_second) if new_line_per_second else 1
+            except (ValueError, TypeError):
+                new_line_per_second = 1
+       
 
-        
         filename = secure_filename(video.filename)
-        video.save(os.path.join(user_paths["upload_path"], filename))
-        extract_frames(os.path.join(user_paths["upload_path"], filename), new_line_per_second)
-        if not os.path.exists(os.path.join(user_paths["upload_path"], filename)):
+        upload_path = os.path.join(user_paths["upload_path"],filename)
+        video.save(upload_path)
+        extract_frames(upload_path, mode, new_line_per_second, frames_array)
+        if not os.path.exists(upload_path):
             return {"message": "Could not extract frames", "status": 400}
-        os.remove(os.path.join(user_paths["upload_path"], filename))  
+        os.remove(upload_path)  
         return {"session_id": str(session.get("session_id")),"success":True, "status": 200}
 
     @app.route("/api/get_frame", methods = ["GET"])
