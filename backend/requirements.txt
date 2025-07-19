@@ -7,3 +7,4 @@ ultralytics
 pytest
 python-dotenv
 werkzeug
+gunicorn

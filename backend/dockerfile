@@ -13,12 +13,13 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app/backend
-COPY . .
-
+COPY ./ .
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 FROM python:3.11-slim AS production
+
+# Use a WSGI server
 
 RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx \
@@ -31,11 +32,14 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app/backend
 
-COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+
+# Copy python env
+COPY --from=builder /usr/local /usr/local
+
 
 # Copy application code
 COPY --from=builder /app/backend /app/backend
 
 EXPOSE 5000
 
-CMD ["python", "main.py"]
+CMD ["gunicorn", "main:app", "--bind", "0.0.0.0:5000"]

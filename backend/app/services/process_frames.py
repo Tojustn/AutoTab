@@ -88,18 +88,6 @@ def get_string_from_frames():
                         merged_lines.append([0, middle_y, width, middle_y])
                         previous_y.add(middle_y)
 
-        if merged_lines is not None:
-            for i in range(len(merged_lines)):
-                count+=1
-                x1, y1, x2, y2 = merged_lines[i]
-
-                cv.line(output, (int(x1), int(y1)), (int(x2), int(y2)), (0, 0, 255), 2)
-                # Print image with lines
-                
-
-            #plt.imshow(cv.cvtColor(output, cv.COLOR_BGR2RGB))
-            #plt.show()
-
         #print(f"Merged lines: {len(merged_lines)}")
         if len(merged_lines) == 6:
             best_frame = processed_frame
