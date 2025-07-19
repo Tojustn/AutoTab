@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import api from "../api.ts";
+import { useState } from "react";
 import { CircularProgress, Box } from "@mui/material";
 import NavBar from "../components/NavBar.tsx";
 import UploadConfig from "../components/UploadConfig.tsx";

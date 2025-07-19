@@ -1,4 +1,5 @@
 import { Box, Button, TextField } from "@mui/material";
+import SplitButton from "./SplitButton";
 import { useState } from "react";
 import api from "../api";
 
@@ -101,23 +102,7 @@ const UploadConfig = (props: any) => {
           />
         </Button>
       </Box>
-      <Box>
-        <TextField
-          name="secondsPerFrame"
-          id="filled-number"
-          label="Seconds per Frame Extracted(optional)"
-          type="number"
-          variant="filled"
-          value={secondsPerFrame}
-          onChange={handleSecondsPerFrameChange}
-          margin="dense"
-          slotProps={{
-            inputLabel: {
-              shrink: true,
-            },
-          }}
-        />
-      </Box>
+      <SplitButton></SplitButton>
       <Box m={2} p={2}>
         <Button type="submit" variant="contained">
           Submit
