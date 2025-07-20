@@ -1,124 +1,53 @@
-import * as React from "react";
-import Button from "@mui/material/Button";
-import ButtonGroup from "@mui/material/ButtonGroup";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import ClickAwayListener from "@mui/material/ClickAwayListener";
-import Grow from "@mui/material/Grow";
-import Paper from "@mui/material/Paper";
-import Popper from "@mui/material/Popper";
-import MenuItem from "@mui/material/MenuItem";
-import MenuList from "@mui/material/MenuList";
+import { Box, TextField, Switch } from "@mui/material";
+import { useState } from "react";
 
-const options = ["Choose Via Interval", "Choose Exact Times"];
+type SplitButtonProps = {
+  secondsPerFrame: number | null;
+  setSecondsPerFrame: React.Dispatch<React.SetStateAction<number | null>>;
+  selectedFrames: string;
+  setSelectedFrames: React.Dispatch<React.SetStateAction<string>>;
+};
 
-export default function SplitButton() {
-  const [open, setOpen] = React.useState(false);
-  const anchorRef = React.useRef<HTMLDivElement>(null);
-  const [selectedIndex, setSelectedIndex] = React.useState(1);
-
-  const handleClick = () => {
-    console.info(`You clicked ${options[selectedIndex]}`);
-  };
-
-  const handleMenuItemClick = (
-    event: React.MouseEvent<HTMLLIElement, MouseEvent>,
-    index: number
-  ) => {
-    setSelectedIndex(index);
-    setOpen(false);
-  };
+export default function SplitButton({
+  secondsPerFrame,
+  setSecondsPerFrame,
+  selectedFrames,
+  setSelectedFrames,
+}: SplitButtonProps) {
+  const [intervalMode, setIntervalMode] = useState<boolean>(true);
 
   const handleToggle = () => {
-    setOpen((prevOpen) => !prevOpen);
+    setIntervalMode((prev) => !prev);
+    selectedFrames === "" ? setSecondsPerFrame(null) : setSelectedFrames("");
   };
-
-  const handleClose = (event: Event) => {
-    if (
-      anchorRef.current &&
-      anchorRef.current.contains(event.target as HTMLElement)
-    ) {
-      return;
-    }
-
-    setOpen(false);
-  };
-
   return (
-    <React.Fragment>
-      <ButtonGroup
-        variant="contained"
-        ref={anchorRef}
-        aria-label="Button group with a nested menu"
-      >
-        <Button onClick={handleClick}>{options[selectedIndex]}</Button>
-        <Button
-          size="small"
-          aria-controls={open ? "split-button-menu" : undefined}
-          aria-expanded={open ? "true" : undefined}
-          aria-label="select merge strategy"
-          aria-haspopup="menu"
-          onClick={handleToggle}
-        >
-          <ArrowDropDownIcon />
-        </Button>
-      </ButtonGroup>
-      <Popper
-        sx={{ zIndex: 1 }}
-        open={open}
-        anchorEl={anchorRef.current}
-        role={undefined}
-        transition
-        disablePortal
-      >
-        {({ TransitionProps, placement }) => (
-          <Grow
-            {...TransitionProps}
-            style={{
-              transformOrigin:
-                placement === "bottom" ? "center top" : "center bottom",
-            }}
-          >
-            <Paper>
-              <ClickAwayListener onClickAway={handleClose}>
-                <MenuList id="split-button-menu" autoFocusItem>
-                  {options.map((option, index) => (
-                    <MenuItem
-                      key={option}
-                      disabled={index === 2}
-                      selected={index === selectedIndex}
-                      onClick={(event) => handleMenuItemClick(event, index)}
-                    >
-                      {option}
-                    </MenuItem>
-                  ))}
-                </MenuList>
-              </ClickAwayListener>
-            </Paper>
-          </Grow>
-        )}
-      </Popper>
-    </React.Fragment>
+    <Box>
+      <Box>
+        <Switch onChange={handleToggle} defaultChecked color="default" />
+      </Box>
+      <Box my={2}>
+        <TextField
+          id={intervalMode ? "interval-mode" : "select-mode"}
+          label={intervalMode ? "Seconds per Frame " : "Timestamps "}
+          type="text"
+          helperText={
+            intervalMode
+              ? "Extract a frame every X seconds"
+              : "Enter comma-separated times in seconds (e.g. 1,2,4,10)"
+          }
+          name={intervalMode ? "new_line" : "selected_frames"}
+          value={intervalMode ? secondsPerFrame ?? "" : selectedFrames}
+          onChange={(e) => {
+            if (intervalMode) {
+              setSecondsPerFrame(Number(e.target.value));
+              console.log(selectedFrames);
+            } else {
+              setSelectedFrames(e.target.value);
+              console.log(secondsPerFrame);
+            }
+          }}
+        />
+      </Box>
+    </Box>
   );
 }
-// const SplitButton = () => {
-//   return (
-//     <Box>
-//       <TextField
-//         name="secondsPerFrame"
-//         id="filled-number"
-//         label="Seconds per Frame Extracted(optional)"
-//         type="number"
-//         variant="filled"
-//         value={secondsPerFrame}
-//         onChange={handleSecondsPerFrameChange}
-//         margin="dense"
-//         slotProps={{
-//           inputLabel: {
-//             shrink: true,
-//           },
-//         }}
-//       />
-//     </Box>
-//   );
-// };
-// export default SplitButton;

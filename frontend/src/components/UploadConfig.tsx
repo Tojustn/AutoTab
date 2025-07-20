@@ -20,20 +20,13 @@ const VisuallyHiddenInput = styled("input")({
 const UploadConfig = (props: any) => {
   const { setLoadingMessage, setCurrentPhase, setIsLoading } = props;
   const [file, setFile] = useState<File | undefined>();
-  const [secondsPerFrame, setSecondsPerFrame] = useState<number | undefined>();
+  const [secondsPerFrame, setSecondsPerFrame] = useState<number | null>(null);
+  const [selectedFrames, setSelectedFrames] = useState<string>("");
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       setFile(event.target.files[0]);
     }
-  };
-
-  const handleSecondsPerFrameChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    console.log("changing seconds per frame");
-    const value = event.target.value;
-    setSecondsPerFrame(value === undefined ? undefined : Number(value));
   };
 
   const handleSubmitUpload = async (
@@ -50,23 +43,52 @@ const UploadConfig = (props: any) => {
       if (!file) {
         throw new Error("User must upload a file");
       }
-      if (
-        secondsPerFrame &&
-        (Number(secondsPerFrame) <= 0 ||
-          !Number.isFinite(Number(secondsPerFrame)))
-      ) {
-        throw new Error("Seconds per frame must be a positive integer");
-      }
+      if (secondsPerFrame != null) {
+        if (
+          secondsPerFrame &&
+          (Number(secondsPerFrame) <= 0 ||
+            !Number.isFinite(Number(secondsPerFrame)))
+        ) {
+          throw new Error("Seconds per frame must be a positive integer");
+        }
 
-      formData.append("video", file);
-      if (secondsPerFrame !== undefined) {
-        formData.append("new_line", String(secondsPerFrame));
+        formData.append("video", file);
+        if (secondsPerFrame !== undefined) {
+          formData.append("new_line", String(secondsPerFrame));
+        }
+        console.log(formData);
+      } else if (selectedFrames != "") {
+        const framesArray = selectedFrames
+          .split(",")
+          .map((s) => s.trim())
+          .filter((s) => s !== "");
+
+        if (framesArray.length === 0) {
+          throw new Error("Please enter at least one timestamp.");
+        }
+
+        const invalidFrames = framesArray.filter(
+          (s) => isNaN(Number(s)) || Number(s) < 0
+        );
+        if (invalidFrames.length > 0) {
+          throw new Error(
+            `Invalid timestamp(s): ${invalidFrames.join(
+              ", "
+            )}. All timestamps must be non-negative numbers.`
+          );
+        }
+
+        formData.append("video", file);
+        formData.append("selected_frames", framesArray.join(","));
+        console.log(formData);
+      } else {
+        throw new Error("Must input a value in either section");
       }
-      console.log(formData);
       const response = await api.post("/upload", formData, {
         withCredentials: true,
       });
       setIsLoading(false);
+
       if (response.data.success) {
         setCurrentPhase("choosing");
       } else {
@@ -102,7 +124,12 @@ const UploadConfig = (props: any) => {
           />
         </Button>
       </Box>
-      <SplitButton></SplitButton>
+      <SplitButton
+        secondsPerFrame={secondsPerFrame}
+        setSecondsPerFrame={setSecondsPerFrame}
+        selectedFrames={selectedFrames}
+        setSelectedFrames={setSelectedFrames}
+      />
       <Box m={2} p={2}>
         <Button type="submit" variant="contained">
           Submit
