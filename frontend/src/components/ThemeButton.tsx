@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { ThemeContext } from "../utils/ThemeContext.tsx";
 import { Box } from "@mui/material";
 import Brightness7RoundedIcon from "@mui/icons-material/Brightness7Rounded";

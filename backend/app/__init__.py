@@ -27,9 +27,6 @@ def create_app():
     tracker = GuitarTabs()
     app.tracker = tracker
 
-    app.config['SESSION_TYPE'] = 'filesystem'
-    app.config['SESSION_ID'] = False
-
     return app
 
 

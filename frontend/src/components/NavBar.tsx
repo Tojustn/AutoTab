@@ -1,4 +1,3 @@
-import React from "react";
 import ThemeButton from "./ThemeButton.tsx";
 
 const NavBar = () => {

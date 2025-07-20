@@ -1,8 +1,10 @@
 Flask
-opencv-python
+opencv-python-headless
 numpy
 matplotlib
 flask_cors
 ultralytics 
 pytest
 python-dotenv
+werkzeug
+gunicorn

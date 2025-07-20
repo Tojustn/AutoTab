@@ -1,0 +1,22 @@
+# Stage 1: Build the app
+FROM node:20-slim AS builder
+
+WORKDIR /app/frontend
+RUN npm install -g pnpm
+
+COPY package*.json pnpm-lock.yaml tsconfig* ./
+RUN pnpm install
+
+COPY ./ .
+
+RUN pnpm run build 
+
+FROM node:20-slim
+
+RUN npm install -g serve
+# Copy only the build output from builder
+COPY --from=builder /app/frontend/dist /frontend
+
+EXPOSE 5173 
+
+CMD ["serve", "-s", "frontend", "--listen", "5173"]

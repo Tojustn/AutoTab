@@ -1,4 +1,3 @@
-import React from "react";
 import { Box } from "@mui/material";
 
 const HowToUse = () => {
@@ -8,7 +7,9 @@ const HowToUse = () => {
       <ol className="list-decimal ">
         <li>Upload a guitar video- Make sure the first frame shows the tabs</li>
         <li>
-          Choose the time between each line you want copied (defaults to 1)
+          Select how frames are extracted: either set a time interval (e.g.,
+          every 1 second) or specify exact timestamps for each frame you want to
+          capture.
         </li>
         <li>Set crop dimensions- Highlight the area where tabs appear.</li>
         <li>

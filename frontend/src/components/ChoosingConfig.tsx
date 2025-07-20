@@ -7,7 +7,9 @@ import "react-image-crop/dist/ReactCrop.css";
 import api from "../api";
 
 type ChoosingConfigProps = {
-  setCurrentPhase: (phase: string) => void;
+  setCurrentPhase: React.Dispatch<
+    React.SetStateAction<"upload" | "choosing" | "results">
+  >;
   setIsLoading: (loading: boolean) => void;
   setLoadingMessage: (message: string) => void;
   setResult: (result: string) => void;
@@ -38,7 +40,7 @@ const ChoosingConfig = (props: ChoosingConfigProps) => {
       } catch (error) {
         alert(error);
         await api.post("/cleanup", {}, { withCredentials: true });
-        setCurrentPhase("uploading");
+        setCurrentPhase("upload");
         setIsLoading(false);
       }
     };
@@ -73,10 +75,10 @@ const ChoosingConfig = (props: ChoosingConfigProps) => {
       const form = new FormData();
       alert(
         `Final Dimensions:\n` +
-        `x: ${Math.round(cropX)}\n` +
-        `y: ${Math.round(cropY)}\n` +
-        `width: ${Math.round(cropWidth)}\n` +
-        `height: ${Math.round(cropHeight)}`
+          `x: ${Math.round(cropX)}\n` +
+          `y: ${Math.round(cropY)}\n` +
+          `width: ${Math.round(cropWidth)}\n` +
+          `height: ${Math.round(cropHeight)}`
       );
       form.append(
         "dimensions",
@@ -103,6 +105,7 @@ const ChoosingConfig = (props: ChoosingConfigProps) => {
       }
     }
   };
+  const BACKEND_PORT = import.meta.env.VITE_BACKEND_PORT || "5000";
   return (
     <div className="flex justify-center items-center">
       {frame ? (
@@ -113,7 +116,7 @@ const ChoosingConfig = (props: ChoosingConfigProps) => {
           </p>
           <ReactCrop crop={crop} onChange={(c) => setCrop(c)}>
             <img
-              src={`http://127.0.0.1:5000${frame}`}
+              src={`http://localhost:${BACKEND_PORT}${frame}`}
               key={getFrameNumber(frame)}
               alt="Extracted Frame"
               style={{ maxWidth: 1000, maxHeight: 1000 }}
