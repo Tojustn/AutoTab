@@ -2,8 +2,8 @@ import { Box, TextField, Switch } from "@mui/material";
 import { useState } from "react";
 
 type SplitButtonProps = {
-  secondsPerFrame: number | null;
-  setSecondsPerFrame: React.Dispatch<React.SetStateAction<number | null>>;
+  secondsPerFrame: number | undefined;
+  setSecondsPerFrame: React.Dispatch<React.SetStateAction<number | undefined>>;
   selectedFrames: string;
   setSelectedFrames: React.Dispatch<React.SetStateAction<string>>;
 };
@@ -18,7 +18,9 @@ export default function SplitButton({
 
   const handleToggle = () => {
     setIntervalMode((prev) => !prev);
-    selectedFrames === "" ? setSecondsPerFrame(null) : setSelectedFrames("");
+    selectedFrames === ""
+      ? setSecondsPerFrame(undefined)
+      : setSelectedFrames("");
   };
   return (
     <Box>

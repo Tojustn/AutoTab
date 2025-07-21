@@ -1,4 +1,4 @@
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import SplitButton from "./SplitButton";
 import { useState } from "react";
 import api from "../api";
@@ -20,7 +20,9 @@ const VisuallyHiddenInput = styled("input")({
 const UploadConfig = (props: any) => {
   const { setLoadingMessage, setCurrentPhase, setIsLoading } = props;
   const [file, setFile] = useState<File | undefined>();
-  const [secondsPerFrame, setSecondsPerFrame] = useState<number | null>(null);
+  const [secondsPerFrame, setSecondsPerFrame] = useState<number | undefined>(
+    undefined
+  );
   const [selectedFrames, setSelectedFrames] = useState<string>("");
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,7 +45,7 @@ const UploadConfig = (props: any) => {
       if (!file) {
         throw new Error("User must upload a file");
       }
-      if (secondsPerFrame != null) {
+      if (secondsPerFrame != undefined) {
         if (
           secondsPerFrame &&
           (Number(secondsPerFrame) <= 0 ||
