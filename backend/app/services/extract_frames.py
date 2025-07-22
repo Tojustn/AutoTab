@@ -14,7 +14,7 @@ def extract_frames(videopath: str, mode: str, interval: int = None, frames_array
     saved_frames = []
 
     if not videoObj.isOpened():
-        print(f"Failed to open video: {videopath}")
+        # print(f"Failed to open video: {videopath}")
         return {"success": False, "error": "Failed to open video"}
 
     if mode == "interval":

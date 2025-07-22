@@ -11,7 +11,7 @@ def get_last_number(frame: str) -> int:
 
 def preprocess_frames(dimensions: dict):
     # x left, y top, w width, h height
-    print(type(dimensions))
+    # print(type(dimensions))
     x,y,w,h = dimensions.values()
     previous_frames = set()
     # Ensure processed frames directory exists

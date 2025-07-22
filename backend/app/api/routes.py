@@ -45,7 +45,7 @@ def register_routes(app):
         # Passed in as CSV
         frames_chosen = request.form.get("selected_frames") 
         frames_array = list(map(int, frames_chosen.split(","))) if frames_chosen else []
-        print(frames_array)
+        # print(frames_array)
 
 
 
@@ -105,7 +105,7 @@ def register_routes(app):
 
         for value in dimensions:
             dimensions[value] = int(dimensions[value])
-        print(dimensions)
+        # print(dimensions)
         
         preprocess_frames(dimensions)
         strings_capture_result = get_string_from_frames()

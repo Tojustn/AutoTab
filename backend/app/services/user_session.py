@@ -19,7 +19,7 @@ def get_user_paths():
     if not session_id:
         return None
     base_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
-    # print(base_dir)
+    # # print(base_dir)
     if not app.config["TESTING"]:
         upload_path = os.path.join(base_dir, 'user_data', session_id, 'static', 'raw_video')
         file_path = os.path.join(base_dir, 'user_data', session_id, 'static', 'frames')
@@ -34,7 +34,7 @@ def get_user_paths():
         "file_path": file_path,
         "processed_path": processed_path
     }
-def cleanup_user_data(exception):
+def cleanup_user_data():
     user_paths = get_user_paths()
     if user_paths is not None:
         if os.path.exists(user_paths["upload_path"]):

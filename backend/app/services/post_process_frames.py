@@ -159,6 +159,7 @@ def render_tabs():
             while len(string) < max_string_length:
                 string.append("---")
 
+    all_tab_frames.reverse()
     final_result = "" 
     #print(all_tab_frames)
     for frame in all_tab_frames:

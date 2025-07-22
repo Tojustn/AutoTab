@@ -21,11 +21,11 @@ def predict_frets():
             # Convert from class indices to names
             fretName = model.names[fretx]
             position = [int(x1),int(y1),int(x2),int(y2)]
-            #print(box.xyxy)
-            #print(fretName)
-            #print(position)
+            # print(box.xyxy)
+            # print(fretName)
+            # print(position)
             tab = Tab(fretName, position,frame)
-            #print(tab)
+            # print(tab)
 
             
             app.tracker.add_tab(tab)
