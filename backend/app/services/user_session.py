@@ -34,7 +34,7 @@ def get_user_paths():
         "file_path": file_path,
         "processed_path": processed_path
     }
-def cleanup_user_data(exception):
+def cleanup_user_data():
     user_paths = get_user_paths()
     if user_paths is not None:
         if os.path.exists(user_paths["upload_path"]):
