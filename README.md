@@ -21,10 +21,7 @@ AutoTab is a web application that automatically extracts guitar tablature from v
 
 ## 🧪 Upcoming Features
 
-- 🎯 Improved tab accuracy with multi-frame context
-- 🔍 Zoom and pan on cropped regions
 - 📥 Download generated tabs in `.txt` or Guitar Pro format
-- 🧰 Edit tabs manually after generation
 - ☁️ Deployable demo version with public URL
 
 ---
