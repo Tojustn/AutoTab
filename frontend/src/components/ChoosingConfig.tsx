@@ -63,12 +63,12 @@ const ChoosingConfig = (props: ChoosingConfigProps) => {
     const cropY = crop.y * scaleY;
     const cropWidth = crop.width * scaleX;
     const cropHeight = crop.height * scaleY;
-    console.log("Submitting crop with dimensions:", {
-      x: cropX,
-      y: cropY,
-      width: cropWidth,
-      height: cropHeight,
-    });
+    // console.log("Submitting crop with dimensions:", {
+    //   x: cropX,
+    //   y: cropY,
+    //   width: cropWidth,
+    //   height: cropHeight,
+    // });
     try {
       setIsLoading(true);
       setLoadingMessage("Predicting and Formatting Tabs");

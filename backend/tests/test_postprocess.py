@@ -10,5 +10,5 @@ def test_post_process_frames(client):
             else:
                 assert True
         except Exception as e:
-            print(f"render_tabs function not fully implemented: {e}")
+            # print(f"render_tabs function not fully implemented: {e}")
             assert True 

@@ -34,7 +34,7 @@ const UploadConfig = (props: any) => {
   const handleSubmitUpload = async (
     event: React.FormEvent<HTMLFormElement>
   ) => {
-    console.log("Submitting Upload");
+    // console.log("Submitting Upload");
 
     setIsLoading(true);
     setLoadingMessage("Uploading files...");
@@ -58,7 +58,7 @@ const UploadConfig = (props: any) => {
         if (secondsPerFrame !== undefined) {
           formData.append("new_line", String(secondsPerFrame));
         }
-        console.log(formData);
+        // console.log(formData);
       } else if (selectedFrames != "") {
         const framesArray = selectedFrames
           .split(",")
@@ -82,7 +82,7 @@ const UploadConfig = (props: any) => {
 
         formData.append("video", file);
         formData.append("selected_frames", framesArray.join(","));
-        console.log(formData);
+        // console.log(formData);
       } else {
         throw new Error("Must input a value in either section");
       }
@@ -96,14 +96,14 @@ const UploadConfig = (props: any) => {
       } else {
         throw new Error(`${response.data.message}`);
       }
-      console.log(response);
+      // console.log(response);
     } catch (error) {
       alert(error);
       setIsLoading(false);
       setFile(undefined);
       setSecondsPerFrame(undefined);
       setCurrentPhase("upload");
-      console.log(error);
+      // console.log(error);
     }
   };
 

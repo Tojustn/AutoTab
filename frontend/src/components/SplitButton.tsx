@@ -42,10 +42,10 @@ export default function SplitButton({
           onChange={(e) => {
             if (intervalMode) {
               setSecondsPerFrame(Number(e.target.value));
-              console.log(selectedFrames);
+              // console.log(selectedFrames);
             } else {
               setSelectedFrames(e.target.value);
-              console.log(secondsPerFrame);
+              // console.log(secondsPerFrame);
             }
           }}
         />
