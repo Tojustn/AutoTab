@@ -16,7 +16,7 @@ FRET_MAPPING = {
 }
 
 def render_tabs():
-    note_list = ["e", "B", "G", "D", "A", "E"]
+    note_list = ["E", "A", "D", "G", "B", "e"]
     note_list_copy = note_list.copy()
     start_of_line =  "e-\nB-\nG-\nD-\nA-\nE-"
     height, width = app.tracker.get_height(), app.tracker.get_width()
