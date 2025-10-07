@@ -1,7 +1,7 @@
 # AutoTab
 
 AutoTab is a web application that automatically extracts guitar tablature from videos. Just upload a video, define where the tab appears, and AutoTab will generate a clean set of tabs from the selected frames.
-
+![Demo](demo/demo.gif)
 ## Features
 
 - Upload guitar videos
